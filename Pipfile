@@ -1,0 +1,39 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jmespath = "*"
+numpy = "*"
+requests = "*"
+pandas = "*"
+websockets = "*"
+pyyaml = "*"
+apscheduler = "*"
+loguru = "*"
+voluptuous = "*"
+pytest = "*"
+openpyxl = "*"
+openai = "*"
+lz4 = "*"
+pyzstd = "*"
+blobfile = "*"
+backoff = "*"
+pydantic = "*"
+mock = "*"
+jieba = "*"
+nltk = "*"
+base = "*"
+rouge = "*"
+click = "*"
+contextvars = "*"
+starlette = "*"
+python-dotenv = "*"
+dashscope = "*"
+websocket-client = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"

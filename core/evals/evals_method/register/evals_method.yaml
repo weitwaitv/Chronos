@@ -1,0 +1,33 @@
+text_match_eval:
+  class: core.evals.evals_method.text_match_eval:TextMatchEval
+  args: { }
+
+bleu_eval:
+  class: core.evals.evals_method.bleu_eval:BleuEval
+  args:
+    is_chinese: true
+
+fuzzy_eval:
+  class: core.evals.evals_method.fuzzy_eval:FuzzyMatchEval
+  args: { }
+gpt_eval:
+  class: core.evals.evals_method.gpt_eval:GptEval
+  args: { }
+include_eval:
+  class: core.evals.evals_method.gpt_eval:IncludesEval
+  args: { }
+
+keyword_coverage_eval:
+  class: core.evals.evals_method.keyword_coverage_eval:KeyWordCoverageEval
+  args: { }
+
+match_eval:
+  class: core.evals.evals_method.match_eval:MatchEval
+  args: { }
+
+rouge_eval:
+  class: core.evals.evals_method.rouge_eval:RougeEval
+  args: { }
+manual_eval:
+  class: core.evals.evals_method.manual_eval:ManualEval
+  args: { }

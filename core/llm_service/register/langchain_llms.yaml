@@ -1,0 +1,6 @@
+llm/demo:
+  class: core.llm_service.fn_for_example:FnForExampleCompletionFn
+  args:
+    api_key: chronos1115
+    url: http://124.71.221.1:8000/api/demo
+    extra_options:
