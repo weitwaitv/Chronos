@@ -121,6 +121,7 @@ def raw_request(method, url: str, headers=None, data=None, **kwargs):
     try:
         response = requests.request(method, url, headers=headers, data=data, **kwargs)
         response.raise_for_status()  # 如果返回的响应不是 200（OK），则抛出异常
+
     except Timeout:
         print("请求超时，请检查网络连接或稍后重试。")
         raise Timeout
@@ -140,18 +141,9 @@ def raw_request(method, url: str, headers=None, data=None, **kwargs):
         return response.json()
 
 
-def request(
-    method, url: str, *, json=None, params=None, headers=None, data=None, **kwargs
-):
+def request(method, url: str, headers=None, data=None, **kwargs):
     response = completion_retrying(
-        func=raw_request,
-        method=method,
-        url=url,
-        headers=headers,
-        data=data,
-        json=json,
-        params=params,
-        **kwargs,
+        func=raw_request, method=method, url=url, headers=headers, data=data, **kwargs
     )
     return response
 
@@ -185,15 +177,11 @@ def request_with_timeout(func, *args, timeout=EVALS_THREAD_TIMEOUT, **kwargs):
 @backoff.on_exception(
     wait_gen=backoff.expo,
     exception=(
-        openai.error.ServiceUnavailableError,
-        openai.error.APIError,
-        openai.error.RateLimitError,
-        openai.error.APIConnectionError,
-        openai.error.Timeout,
-        Timeout,
-        ConnectionError,
-        HTTPError,
-        TooManyRedirects,
+            openai.error.RateLimitError,
+            openai.error.APIConnectionError,
+            ConnectionError,
+            HTTPError,
+            TooManyRedirects,
     ),
     max_value=60,
     factor=1.5,

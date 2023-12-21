@@ -109,7 +109,6 @@ class Eval(abc.ABC):
         work_items = _index_samples(self.samples)
         threads = int(os.environ.get("EVALS_THREADS", "10"))
         show_progress = bool(os.environ.get("EVALS_SHOW_EVAL_PROGRESS", show_progress))
-        print(threads)
 
         def eval_sample(args):
             """

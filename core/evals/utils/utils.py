@@ -194,8 +194,8 @@ def evaluate_text_matching(prediction: list, answers: list):
         false_negative += fn
 
     # 计算准确率、召回率和F1分数
-    precision = true_positive / (true_positive + false_positive + 1e-6)
-    recall = true_positive / (true_positive + false_negative + 1e-6)
+    precision = true_positive / (true_positive + false_positive)
+    recall = true_positive / (true_positive + false_negative)
     f1 = 2 * precision * recall / (precision + recall + 1e-6)
 
     return precision, recall, f1

@@ -30,6 +30,7 @@ class BleuEval(Eval):
         ideal = sample.ideal
         assert isinstance(ideal, list), "ideal must be list"
         blue_score = utils.calculate_blue_score(ideal, sampled, self.is_chinese)
+        print(blue_score)
         record_metrics(
             blue_score=blue_score,
             expected=sample.ideal,

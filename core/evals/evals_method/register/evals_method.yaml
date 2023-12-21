@@ -31,3 +31,6 @@ rouge_eval:
 manual_eval:
   class: core.evals.evals_method.manual_eval:ManualEval
   args: { }
+dialogue_eval:
+  class: core.evals.evals_method.dialogue_eval:DialogueEval
+  args: { }

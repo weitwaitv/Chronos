@@ -1,3 +1,4 @@
+import time
 from typing import Any, Optional, Union
 
 from core.evals.module.base import CompletionFnSpec
@@ -26,7 +27,10 @@ class OpenAIChatCompletionResult(OpenAIBaseCompletionResult):
         if self.raw_data and "choices" in self.raw_data:
             for choice in self.raw_data["choices"]:
                 if "message" in choice:
-                    completions.append(choice["message"]["content"])
+                    try:
+                        completions.append(choice["message"]["content"])
+                    except KeyError:
+                        completions.append("")
         return completions
 
 
@@ -42,13 +46,14 @@ class OpenAICompletionResult(OpenAIBaseCompletionResult):
 
 class OpenAIChatCompletionFn(CompletionFnSpec):
     def __init__(
-        self,
-        model: Optional[str] = None,
-        api_base: Optional[str] = None,
-        api_key: Optional[str] = None,
-        n_ctx: Optional[int] = None,
-        extra_options=None,
-        **kwargs,
+            self,
+            model: Optional[str] = None,
+            api_base: Optional[str] = None,
+            api_key: Optional[str] = None,
+            is_fn: Optional[bool] = True,
+            n_ctx: Optional[int] = None,
+            extra_options=None,
+            **kwargs,
     ):
         if extra_options is None:
             extra_options = {}
@@ -56,28 +61,29 @@ class OpenAIChatCompletionFn(CompletionFnSpec):
         self.api_base = api_base
         self.api_key = api_key
         self.n_ctx = n_ctx
+        self.is_fn = is_fn
         self.extra_options = extra_options
 
     def __call__(
-        self,
-        prompt: Union[str, OpenAICreateChatPrompt],
-        **kwargs,
+            self,
+            prompt: Union[str, OpenAICreateChatPrompt],
+            **kwargs,
     ) -> OpenAIChatCompletionResult:
         if not isinstance(prompt, Prompt):
             assert (
-                isinstance(prompt, str)
-                or (
-                    isinstance(prompt, list)
-                    and all(isinstance(token, int) for token in prompt)
-                )
-                or (
-                    isinstance(prompt, list)
-                    and all(isinstance(token, str) for token in prompt)
-                )
-                or (
-                    isinstance(prompt, list)
-                    and all(isinstance(msg, dict) for msg in prompt)
-                )
+                    isinstance(prompt, str)
+                    or (
+                            isinstance(prompt, list)
+                            and all(isinstance(token, int) for token in prompt)
+                    )
+                    or (
+                            isinstance(prompt, list)
+                            and all(isinstance(token, str) for token in prompt)
+                    )
+                    or (
+                            isinstance(prompt, list)
+                            and all(isinstance(msg, dict) for msg in prompt)
+                    )
             ), (
                 f"Got type {type(prompt)}, with val {type(prompt[0])} for prompt, expected str or list[int] or list["
                 f"str] or list[dict[str, str]]"
@@ -88,7 +94,7 @@ class OpenAIChatCompletionFn(CompletionFnSpec):
             )
 
         openai_create_prompt = prompt.to_formatted_prompt()
-
+        start_time = time.time()
         result = openai_chat_completion_create_retrying(
             model=self.model,
             api_base=self.api_base,
@@ -96,8 +102,11 @@ class OpenAIChatCompletionFn(CompletionFnSpec):
             messages=openai_create_prompt,
             **{**kwargs, **self.extra_options},
         )
+        end_time = time.time()
         result = OpenAIChatCompletionResult(
             raw_data=result, prompt=openai_create_prompt
         )
-        record_sampling(prompt=result.prompt, sampled=result.get_completions())
+
+        if self.is_fn:
+            record_sampling(prompt=result.prompt, sampled=result.get_completions(), response_time=end_time - start_time)
         return result

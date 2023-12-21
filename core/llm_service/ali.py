@@ -12,7 +12,10 @@ class ALiCompletionResult(CompletionResult):
         self.response: GenerationResponse = response
 
     def get_completions(self) -> list[str]:
-        return [self.response.output["text"]]
+        if self.response.output["text"]:
+            return [self.response.output["text"]]
+        else:
+            return [""]
 
 
 class ALiCompletionFn:
@@ -24,7 +27,7 @@ class ALiCompletionFn:
         self.extra_options = extra_options
 
     def __call__(
-        self, prompt: Union[str, list[dict]], **kwargs: Any
+            self, prompt: Union[str, list[dict]], **kwargs: Any
     ) -> ALiCompletionResult:
         prompt_content = ";".join([content["content"] for content in prompt])
         response = Generation.call(

@@ -1,5 +1,8 @@
 import json
+import time
 from typing import Any, Union
+
+import requests
 
 from core.llm_service.base.api import CompletionResult
 from core.llm_service.base.base import request
@@ -42,26 +45,28 @@ class AipBaidubceCompletionFn:
         return response.get("access_token")
 
     def __call__(
-        self, prompt: Union[str, list[dict]], **kwargs: Any
+            self, prompt: Union[str, list[dict]], **kwargs: Any
     ) -> AipBaidubceCompletionResult:
         prompt_content = ";".join([content["content"] for content in prompt])
 
-        data = json.dumps(
-            {"messages": [{"role": "user", "content": prompt_content}]}.update(
-                self.extra_options
-            )
-        )
+        url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token=" + self.get_access_token()
 
-        headers = {"Content-Type": "application/json"}
-        response = request(
-            "POST",
-            self.url,
-            headers=headers,
-            params={"access_token": self.get_access_token()},
-            data=data,
-        )
-        print(response)
+        payload = json.dumps({
+            "system": prompt[0]["content"],
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt[1]["content"]
+                }
+            ]
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        start_time = time.time()
+        response = requests.request("POST", url, headers=headers, data=payload).json()
+        end_time = time.time()
         result = AipBaidubceCompletionResult(response)
-        record_sampling(prompt=prompt_content, sampled=result.get_completions())
+        record_sampling(prompt=prompt_content, sampled=result.get_completions(), response_time=end_time - start_time)
 
         return result

@@ -104,8 +104,8 @@ def evaluate_text_matching(events: Sequence[Event]):
     false_positive = len(y_pred_set - y_true_set)
     false_negative = len(y_true_set - y_pred_set)
 
-    precision = true_positive / (true_positive + false_positive + 1e-6)
-    recall = true_positive / (true_positive + false_negative + 1e-6)
+    precision = true_positive / (true_positive + false_positive)
+    recall = true_positive / (true_positive + false_negative)
     f1 = 2 * precision * recall / (precision + recall + 1e-6)
 
     return precision, recall, f1

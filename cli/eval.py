@@ -6,7 +6,8 @@ from typing import Optional, Union
 import click
 
 from core import record
-from core.evals.base.eval import set_max_samples, Eval
+from core.evals.base.eval import set_max_samples
+from core.evals.evals_method.gpt_eval import GptEval
 from core.evals.module import base
 from core.evals.module.base import Sample
 from core.evals.module.data_convert import get_input_data
@@ -39,8 +40,7 @@ def create_instance_evals_method(
     completion_fn,
     samples,
     evals_method_config: Union[None, str],
-    reviewer=None,
-) -> Eval:
+):
     """
     实例化评测方法
     :param eval_name:
@@ -48,7 +48,6 @@ def create_instance_evals_method(
     :param completion_fn:
     :param samples:
     :param evals_method_config:
-    :param reviewer:
     :return:
     """
     class_name = content_yaml[eval_name]["class"].split(":")
@@ -58,9 +57,9 @@ def create_instance_evals_method(
     if evals_method_config:
         args.update({k: v for k, v in json.loads(evals_method_config).items()})
     # TODO gpt评测需要提前实例化评测者，下次优化
-    if reviewer:
+    if GptEval == evals_method_cls:
         evaluator: CompletionFn = create_instance_llm(
-            reviewer, handle_yaml(env_file_get("llm_service_register")), None
+            "llm/openai/gpt-4", handle_yaml(env_file_get("llm_service_register")), None
         )
         args.update({"evaluator": evaluator})
     evals_method_instance = evals_method_cls(**args)
@@ -88,7 +87,7 @@ def create_cls_by_class_name(module_name, class_name):
         raise ValueError(f"Class '{class_name}' not found in module '{module_name}'")
 
 
-def get_log_path(log_path, lls, e) -> str:
+def get_log_path(log_path, lls, e):
     """
     record路径处理
     :param log_path:
@@ -98,10 +97,10 @@ def get_log_path(log_path, lls, e) -> str:
     """
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     lls = lls.replace("/", "_")
-    return log_path or f"/tmp/eval_logs/{timestamp}_{lls}_{e}.jsonl"
+    return log_path or f"/Users/raintan/Documents/eval_logs/{timestamp}_{lls}_{e}.jsonl"
 
 
-def get_llm_service_config(config) -> Union[dict, None]:
+def get_llm_service_config(config):
     """
     对已实现的模型进行变更配置文件
     :param config:
@@ -111,7 +110,7 @@ def get_llm_service_config(config) -> Union[dict, None]:
 
 
 @click.command()
-@click.argument("lls_service")
+@click.argument("lls_service", default="llm/openai/gpt-4")
 @click.argument("eval_method")
 @click.argument("samples_data", type=click.Path(exists=True))
 @click.option("-lg", "--log_path", help="样本记录")
@@ -120,7 +119,6 @@ def get_llm_service_config(config) -> Union[dict, None]:
     "-dm", "--evals_method_config", help="对已实现的评测方法进行修改参数，请传入json如：'{'name':'rain'}'"
 )
 @click.option("-max_samples", "--max_samples", help="最大样本数")
-@click.option("-rev", "--reviewer", help="评测者")
 def chronos(
     lls_service,
     eval_method,
@@ -129,7 +127,6 @@ def chronos(
     llm_service_config,
     evals_method_config,
     max_samples,
-    reviewer,
 ):
     """
     cli处理
@@ -140,7 +137,6 @@ def chronos(
     :param llm_service_config:
     :param evals_method_config:
     :param max_samples:
-    :param reviewer:
     :return:
     """
     run_config = {
@@ -154,7 +150,7 @@ def chronos(
         run_config=run_config,
     )
     if max_samples:
-        set_max_samples(max_samples)
+        set_max_samples(int(max_samples))
     log_path = get_log_path(log_path, lls_service, eval_method)
 
     samples: list[Sample] = get_input_data(samples_data)
@@ -172,7 +168,6 @@ def chronos(
         fn,
         samples,
         evals_method_config,
-        reviewer,
     )
     recorder: record.RecorderBase = record.LocalRecorder(
         log_path=log_path, run_spec=run_spec
