@@ -45,28 +45,30 @@ class AipBaidubceCompletionFn:
         return response.get("access_token")
 
     def __call__(
-            self, prompt: Union[str, list[dict]], **kwargs: Any
+        self, prompt: Union[str, list[dict]], **kwargs: Any
     ) -> AipBaidubceCompletionResult:
         prompt_content = ";".join([content["content"] for content in prompt])
 
-        url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token=" + self.get_access_token()
+        url = (
+            "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="
+            + self.get_access_token()
+        )
 
-        payload = json.dumps({
-            "system": prompt[0]["content"],
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt[1]["content"]
-                }
-            ]
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
+        payload = json.dumps(
+            {
+                "system": prompt[0]["content"],
+                "messages": [{"role": "user", "content": prompt[1]["content"]}],
+            }
+        )
+        headers = {"Content-Type": "application/json"}
         start_time = time.time()
         response = requests.request("POST", url, headers=headers, data=payload).json()
         end_time = time.time()
         result = AipBaidubceCompletionResult(response)
-        record_sampling(prompt=prompt_content, sampled=result.get_completions(), response_time=end_time - start_time)
+        record_sampling(
+            prompt=prompt_content,
+            sampled=result.get_completions(),
+            response_time=end_time - start_time,
+        )
 
         return result

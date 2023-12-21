@@ -27,7 +27,7 @@ class ALiCompletionFn:
         self.extra_options = extra_options
 
     def __call__(
-            self, prompt: Union[str, list[dict]], **kwargs: Any
+        self, prompt: Union[str, list[dict]], **kwargs: Any
     ) -> ALiCompletionResult:
         prompt_content = ";".join([content["content"] for content in prompt])
         response = Generation.call(

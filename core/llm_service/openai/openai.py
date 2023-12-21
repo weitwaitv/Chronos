@@ -46,14 +46,14 @@ class OpenAICompletionResult(OpenAIBaseCompletionResult):
 
 class OpenAIChatCompletionFn(CompletionFnSpec):
     def __init__(
-            self,
-            model: Optional[str] = None,
-            api_base: Optional[str] = None,
-            api_key: Optional[str] = None,
-            is_fn: Optional[bool] = True,
-            n_ctx: Optional[int] = None,
-            extra_options=None,
-            **kwargs,
+        self,
+        model: Optional[str] = None,
+        api_base: Optional[str] = None,
+        api_key: Optional[str] = None,
+        is_fn: Optional[bool] = True,
+        n_ctx: Optional[int] = None,
+        extra_options=None,
+        **kwargs,
     ):
         if extra_options is None:
             extra_options = {}
@@ -65,25 +65,25 @@ class OpenAIChatCompletionFn(CompletionFnSpec):
         self.extra_options = extra_options
 
     def __call__(
-            self,
-            prompt: Union[str, OpenAICreateChatPrompt],
-            **kwargs,
+        self,
+        prompt: Union[str, OpenAICreateChatPrompt],
+        **kwargs,
     ) -> OpenAIChatCompletionResult:
         if not isinstance(prompt, Prompt):
             assert (
-                    isinstance(prompt, str)
-                    or (
-                            isinstance(prompt, list)
-                            and all(isinstance(token, int) for token in prompt)
-                    )
-                    or (
-                            isinstance(prompt, list)
-                            and all(isinstance(token, str) for token in prompt)
-                    )
-                    or (
-                            isinstance(prompt, list)
-                            and all(isinstance(msg, dict) for msg in prompt)
-                    )
+                isinstance(prompt, str)
+                or (
+                    isinstance(prompt, list)
+                    and all(isinstance(token, int) for token in prompt)
+                )
+                or (
+                    isinstance(prompt, list)
+                    and all(isinstance(token, str) for token in prompt)
+                )
+                or (
+                    isinstance(prompt, list)
+                    and all(isinstance(msg, dict) for msg in prompt)
+                )
             ), (
                 f"Got type {type(prompt)}, with val {type(prompt[0])} for prompt, expected str or list[int] or list["
                 f"str] or list[dict[str, str]]"
@@ -108,5 +108,9 @@ class OpenAIChatCompletionFn(CompletionFnSpec):
         )
 
         if self.is_fn:
-            record_sampling(prompt=result.prompt, sampled=result.get_completions(), response_time=end_time - start_time)
+            record_sampling(
+                prompt=result.prompt,
+                sampled=result.get_completions(),
+                response_time=end_time - start_time,
+            )
         return result

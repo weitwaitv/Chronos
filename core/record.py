@@ -18,7 +18,7 @@ from utils.misc import time_process
 logger = logging.getLogger(__name__)
 
 MIN_FLUSH_EVENTS = 100
-MAX_SNOWFLAKE_BYTES = 16 * 10 ** 6
+MAX_SNOWFLAKE_BYTES = 16 * 10**6
 MIN_FLUSH_SECONDS = 10
 
 _default_recorder: ContextVar[Optional["RecorderBase"]] = ContextVar(
@@ -41,8 +41,8 @@ class Event:
 
 class RecorderBase:
     def __init__(
-            self,
-            run_spec: base.RunSpec,
+        self,
+        run_spec: base.RunSpec,
     ) -> None:
         self._sample_id: ContextVar[Optional[int]] = ContextVar(
             "_sample_id", default=None
@@ -103,7 +103,7 @@ class RecorderBase:
     def flush_events(self):
         if len(self._events) == self._written_events:
             return
-        events_to_write = self._events[self._written_events:]
+        events_to_write = self._events[self._written_events :]
         self._written_events = len(self._events)
         self._flushes_started += 1
         self._flush_events_internal(events_to_write)
@@ -127,18 +127,18 @@ class RecorderBase:
             self._events.append(event)
             # 数据储备
             if (
-                    self._flushes_done < self._flushes_started
-                    or len(self._events) < self._written_events + MIN_FLUSH_EVENTS
-                    or time.time() < self._last_flush_time + MIN_FLUSH_SECONDS
+                self._flushes_done < self._flushes_started
+                or len(self._events) < self._written_events + MIN_FLUSH_EVENTS
+                or time.time() < self._last_flush_time + MIN_FLUSH_SECONDS
             ):
                 return
-            events_to_write = self._events[self._written_events:]
+            events_to_write = self._events[self._written_events :]
             self._written_events = len(self._events)
             self._flushes_started += 1
             self._flush_events_internal(events_to_write)
 
     def record_match(
-            self, correct: bool, *, expected=None, picked=None, sample_id=None, **extra
+        self, correct: bool, *, expected=None, picked=None, sample_id=None, **extra
     ):
         assert isinstance(
             correct, bool
@@ -171,7 +171,7 @@ class RecorderBase:
         self.record_event("sampling", data, sample_id=sample_id)
 
     def record_cond_log_probability(
-            self, prompt, completion, log_probability, sample_id=None, **extra
+        self, prompt, completion, log_probability, sample_id=None, **extra
     ):
         data = {
             "prompt": prompt,
@@ -208,7 +208,7 @@ class RecorderBase:
         self.record_event("extra", data, sample_id=sample_id)
 
     def record_keyword_coverage(
-            self, keyword_coverage, expected, sampled, sample_id=None
+        self, keyword_coverage, expected, sampled, sample_id=None
     ):
         data = {
             "keyword_coverage": keyword_coverage,
@@ -271,11 +271,11 @@ def current_sample_id() -> Callable[[], str | None]:
 
 
 def record_and_check_match(
-        prompt: Any,
-        sampled: str,
-        expected: Union[str, list[str], tuple[str]],
-        separator: Callable[[str], bool] = None,
-        options: Optional[list[str]] = None,
+    prompt: Any,
+    sampled: str,
+    expected: Union[str, list[str], tuple[str]],
+    separator: Callable[[str], bool] = None,
+    options: Optional[list[str]] = None,
 ):
     """
     Records and checks if a sampled response from a CompletionFn matches the expected result.
@@ -302,9 +302,9 @@ def record_and_check_match(
         if not sampled.startswith(option):
             continue
         if (
-                separator is not None
-                and len(sampled) > len(option)
-                and not separator(sampled[len(option)])
+            separator is not None
+            and len(sampled) > len(option)
+            and not separator(sampled[len(option)])
         ):
             continue
         picked = option

@@ -177,11 +177,11 @@ def request_with_timeout(func, *args, timeout=EVALS_THREAD_TIMEOUT, **kwargs):
 @backoff.on_exception(
     wait_gen=backoff.expo,
     exception=(
-            openai.error.RateLimitError,
-            openai.error.APIConnectionError,
-            ConnectionError,
-            HTTPError,
-            TooManyRedirects,
+        openai.error.RateLimitError,
+        openai.error.APIConnectionError,
+        ConnectionError,
+        HTTPError,
+        TooManyRedirects,
     ),
     max_value=60,
     factor=1.5,

@@ -12,7 +12,6 @@ class FangZhouCompletionResult(CompletionResult):
         self.response = response
 
     def get_completions(self) -> list[str]:
-
         try:
             txt = self.response.choice.message.content
         except AttributeError:
@@ -21,7 +20,9 @@ class FangZhouCompletionResult(CompletionResult):
 
 
 class FangZhouCompletionFn:
-    def __init__(self, model, host, region, access_key, secret_access_key, extra_options=None):
+    def __init__(
+        self, model, host, region, access_key, secret_access_key, extra_options=None
+    ):
         if extra_options is None:
             extra_options = {}
         self.host = host
@@ -32,9 +33,8 @@ class FangZhouCompletionFn:
         self.extra_options = extra_options
 
     def __call__(
-            self, prompt: Union[str, list[dict]], **kwargs: Any
+        self, prompt: Union[str, list[dict]], **kwargs: Any
     ) -> FangZhouCompletionResult:
-
         maas = MaasService(self.host, self.region)
         maas.set_ak(self.access_key)
         maas.set_sk(self.secret_access_key)
@@ -42,7 +42,7 @@ class FangZhouCompletionFn:
             "model": {
                 "name": self.model,
             },
-            "messages": prompt
+            "messages": prompt,
         }
         req.update(self.extra_options)
         try:
@@ -56,5 +56,7 @@ class FangZhouCompletionFn:
             end_time = 0
         response_time = end_time - start_time
         result = FangZhouCompletionResult(response)
-        record_sampling(prompt=prompt, sampled=result.get_completions(), response_time=response_time)
+        record_sampling(
+            prompt=prompt, sampled=result.get_completions(), response_time=response_time
+        )
         return result

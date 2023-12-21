@@ -11,12 +11,12 @@ from core.llm_service.base.api import CompletionFn
 
 class GptEval(Eval):
     def __init__(
-            self,
-            completion_fn: CompletionFn,
-            samples: Sample,
-            evaluator: CompletionFn,
-            *args,
-            **kwargs,
+        self,
+        completion_fn: CompletionFn,
+        samples: Sample,
+        evaluator: CompletionFn,
+        *args,
+        **kwargs,
     ):
         super().__init__(completion_fn, *args, **kwargs)
         self.samples = samples
@@ -46,7 +46,6 @@ class GptEval(Eval):
             reason=res_dict["reason"],
             sample=prompt[1]["content"],
             sampled=sampled,
-
         )
 
     def run(self, recorder):
