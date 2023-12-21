@@ -15,7 +15,7 @@ loguru = "*"
 voluptuous = "*"
 pytest = "*"
 openpyxl = "*"
-openai = "*"
+openai = "==0.28"
 lz4 = "*"
 pyzstd = "*"
 blobfile = "*"
@@ -32,6 +32,8 @@ starlette = "*"
 python-dotenv = "*"
 dashscope = "*"
 websocket-client = "*"
+volcengine = "*"
+zhipuai = "*"
 
 [dev-packages]
 
